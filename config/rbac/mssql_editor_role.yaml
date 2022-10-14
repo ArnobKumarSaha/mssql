@@ -1,0 +1,24 @@
+# permissions for end users to edit mssqls.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mssql-editor-role
+rules:
+- apiGroups:
+  - microsoft.kubedb.com
+  resources:
+  - mssqls
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - microsoft.kubedb.com
+  resources:
+  - mssqls/status
+  verbs:
+  - get

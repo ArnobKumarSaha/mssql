@@ -1,0 +1,6 @@
+apiVersion: microsoft.kubedb.com/v1alpha1
+kind: MSSQL
+metadata:
+  name: mssql-sample
+spec:
+  version: "0.1.2"
