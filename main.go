@@ -31,7 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	myapi "kubedb.dev/mssql/api/v1alpha1"
+	msapi "kubedb.dev/mssql/api/v1alpha1"
 	"kubedb.dev/mssql/controllers"
 	//+kubebuilder:scaffold:imports
 )
@@ -44,7 +44,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(myapi.AddToScheme(scheme))
+	utilruntime.Must(msapi.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 

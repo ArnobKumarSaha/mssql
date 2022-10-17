@@ -130,3 +130,13 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+
+
+# ----------------------- my added -------------------
+
+clear:
+	kubectl delete svc sample
+	kubectl delete svc sample-pods
+	kubectl delete secret sample-auth
+
+full: uninstall manifests generate fmt vet install run

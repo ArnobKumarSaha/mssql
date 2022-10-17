@@ -22,10 +22,11 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
+	dbapi "kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 )
 
 const (
-	ResourceCodeMySQL     = "mg"
+	ResourceCodeMSSQL     = "ms"
 	ResourceKindMSSQL     = "MSSQL"
 	ResourceSingularMSSQL = "mssql"
 	ResourcePluralMSSQL   = "mssqls"
@@ -69,7 +70,7 @@ type MSSQLSpec struct {
 
 	// Database authentication secret
 	// +optional
-	AuthSecret *core.LocalObjectReference `json:"authSecret,omitempty"`
+	AuthSecret *dbapi.SecretReference `json:"authSecret,omitempty"`
 
 	// ConfigSecret is an optional field to provide custom configuration file for database (i.e mongod.cnf).
 	// If specified, this file will be used as configuration file otherwise default configuration file will be used.
@@ -78,6 +79,10 @@ type MSSQLSpec struct {
 	// PodTemplate is an optional configuration for pods used to expose database
 	// +optional
 	PodTemplate *ofst.PodTemplateSpec `json:"podTemplate,omitempty"`
+
+	// ServiceTemplates is an optional configuration for services used to expose database
+	// +optional
+	ServiceTemplates []dbapi.NamedServiceTemplateSpec `json:"serviceTemplates,omitempty"`
 
 	// HealthChecker defines attributes of the health checker
 	// +optional
