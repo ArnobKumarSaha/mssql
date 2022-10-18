@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysts
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql
+  template:
+    metadata:
+      labels:
+        app: mssql
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        #fsGroup: 10001 # group ID of mssql
+        runAsUser: 10001 # group ID of mssql
+      containers:
+        - name: mssql
+          image: mcr.microsoft.com/mssql/server:2019-latest
+          resources:
+            requests:
+              memory: "2G"
+              cpu: "2000m"
+            limits:
+              memory: "2G"
+              cpu: "2000m"
+          ports:
+            - containerPort: 1433
+              name: mssql
+          env:
+            - name: MSSQL_PID
+              value: "Developer"
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysecret
+                  key: MSSQL_SA_PASSWORD
+          volumeMounts:
+            - name: mssqldb
+              mountPath: /var/opt/mssql
+      volumes:
+        - name: mssqldb
+          persistentVolumeClaim:
+            claimName: mypvc

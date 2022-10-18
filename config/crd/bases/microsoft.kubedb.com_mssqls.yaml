@@ -64,9 +64,8 @@ spec:
                 x-kubernetes-map-type: atomic
               configSecret:
                 description: ConfigSecret is an optional field to provide custom configuration
-                  file for database (i.e mongod.cnf). If specified, this file will
-                  be used as configuration file otherwise default configuration file
-                  will be used.
+                  file for database If specified, this file will be used as configuration
+                  file otherwise default configuration file will be used.
                 properties:
                   name:
                     description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names

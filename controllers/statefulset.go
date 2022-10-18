@@ -41,7 +41,7 @@ type workloadOptions struct {
 	selectors map[string]string
 
 	// db container options
-	// cmd, args, envList & volumeMount of the main(`mongodb`) container
+	// cmd, args, envList & volumeMount of the main(`mssql`) container
 	cmd         []string
 	args        []string
 	envList     []core.EnvVar
@@ -55,7 +55,6 @@ type workloadOptions struct {
 	emptyDirSpec   *core.EmptyDirVolumeSource      // sts.Spec.Template.Spec.Volumes if storageType != Ephemeral
 	initContainers []core.Container                // sts.Spec.Template.Spec.InitContainers
 	volumes        []core.Volume                   // sts.Spec.Template.Spec.Volumes
-	nodeType       string                          // 1) to check if pdb is needed, 2) to skip data-dir related works
 }
 
 func (r *MSSQLReconciler) ensureStatefulSet(opts workloadOptions) (*apps.StatefulSet, kutil.VerbType, error) {

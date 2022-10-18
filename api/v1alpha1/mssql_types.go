@@ -72,7 +72,7 @@ type MSSQLSpec struct {
 	// +optional
 	AuthSecret *dbapi.SecretReference `json:"authSecret,omitempty"`
 
-	// ConfigSecret is an optional field to provide custom configuration file for database (i.e mongod.cnf).
+	// ConfigSecret is an optional field to provide custom configuration file for database
 	// If specified, this file will be used as configuration file otherwise default configuration file will be used.
 	ConfigSecret *core.LocalObjectReference `json:"configSecret,omitempty"`
 

@@ -2,5 +2,6 @@ apiVersion: microsoft.kubedb.com/v1alpha1
 kind: MSSQL
 metadata:
   name: sample
+  namespace: demo
 spec:
   version: "0.1.2"
