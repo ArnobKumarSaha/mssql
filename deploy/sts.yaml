@@ -4,7 +4,7 @@ metadata:
   name: mysts
   namespace: demo
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: mssql
@@ -47,3 +47,36 @@ spec:
         - name: mssqldb
           persistentVolumeClaim:
             claimName: mypvc
+            readOnly: true
+
+
+# Important ENVs:
+#- already added: ACCEPT_EULA, MSSQL_PID, SA_PASSWORD
+#
+#
+#- name: MSSQL_DATA_DIR
+#  value: /mssql-data/data
+#- name: MSSQL_LOG_DIR
+#  value: /mssql-translog/translog
+#- name: MSSQL_BACKUP_DIR
+#  value: /mssql-backup/backup
+#- name: MSSQL_MASTER_DATA_FILE
+#  value: /mssql-data/master/master.mdf
+#- name: MSSQL_MASTER_LOG_FILE
+#  value: /mssql-data/master/mastlog.ldf
+#
+#- name: MSSQL_TCP_PORT
+#  value: "1433"
+#- name: MSSQL_COLLATION
+#  value: SQL_Latin1_General_CP1_CI_AS
+#- name: MSSQL_LCID
+#  value: "1033"
+#- name: MSSQL_ENABLE_HADR
+#  value: "0"
+#- name: MSSQL_AGENT_ENABLED
+#  value: "false"
+#- name: MSSQL_MEMORY_LIMIT_MB
+#  valueFrom:
+#    resourceFieldRef:
+#      divisor: 1Mi
+#      resource: limits.memory

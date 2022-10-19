@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pri
+  namespace: demo
+  labels:
+    app: mssql
+spec:
+  serviceName: "mssql-pri"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql
+  template:
+    metadata:
+      labels:
+        app: mssql
+    spec:
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: mssql
+          image: arnobkumarsaha/mssql-replica:dh2i
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_AGENT_ENABLED
+              value: "Y"
+            - name: MSSQL_ENABLE_HADR
+              value: "1"
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysecret
+                  key: MSSQL_SA_PASSWORD
+          volumeMounts:
+            - name: dxe
+              mountPath: "/etc/dh2i"
+            - name: mssql
+              mountPath: "/var/opt/mssql"
+  volumeClaimTemplates:
+    - metadata:
+        name: dxe
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: mssql
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pri-svc
+  namespace: demo
+spec:
+  type: LoadBalancer
+  selector:
+    statefulset.kubernetes.io/pod-name: pri-0
+  ports:
+    - name: sql
+      protocol: TCP
+      port: 1433
+      targetPort: 1433
+    - name: dxe
+      protocol: TCP
+      port: 7979
+      targetPort: 7979

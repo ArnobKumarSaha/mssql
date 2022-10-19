@@ -30,6 +30,7 @@ import (
 	coreutil "kmodules.xyz/client-go/core/v1"
 	metautil "kmodules.xyz/client-go/meta"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
+	dbapi "kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 	msapi "kubedb.dev/mssql/api/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -91,6 +92,7 @@ func (r *MSSQLReconciler) ensureStatefulSet(opts workloadOptions) (*apps.Statefu
 
 		// volumes
 		in.Spec.Template.Spec.Volumes = coreutil.UpsertVolume(in.Spec.Template.Spec.Volumes, opts.volumes...)
+		in = upsertDataVolume(in, opts.pvcSpec, opts.emptyDirSpec, r.db.Spec.StorageType)
 		copyFromPodTemplate(in, pt)
 		return in
 	})
@@ -185,4 +187,70 @@ func getMainContainer(opts workloadOptions, dbImage string) core.Container {
 		ReadinessProbe:  readinessProbe,
 		VolumeMounts:    opts.volumeMount,
 	}
+}
+
+func upsertDataVolume(
+	statefulSet *apps.StatefulSet,
+	pvcSpec *core.PersistentVolumeClaimSpec,
+	emptyDirSpec *core.EmptyDirVolumeSource,
+	storageType dbapi.StorageType,
+) *apps.StatefulSet {
+	// find the 'mssql' container id first
+	i := func() int {
+		for i, container := range statefulSet.Spec.Template.Spec.Containers {
+			if container.Name == msapi.MSSQLContainerName {
+				return i
+			}
+		}
+		return -1
+	}()
+	if i == -1 {
+		return statefulSet
+	}
+	statefulSet.Spec.Template.Spec.Containers[i].VolumeMounts = coreutil.UpsertVolumeMount(
+		statefulSet.Spec.Template.Spec.Containers[i].VolumeMounts, core.VolumeMount{
+			Name:      msapi.MSSQLDataDirectoryName,
+			MountPath: msapi.MSSQLDataDirectoryPath,
+		},
+	)
+
+	if storageType == dbapi.StorageTypeEphemeral {
+		// use emptyDirSpec as a volumeSource if storageType `ephemeral`
+		ed := core.EmptyDirVolumeSource{}
+		if emptyDirSpec != nil {
+			ed = *emptyDirSpec
+		}
+		statefulSet.Spec.Template.Spec.Volumes = coreutil.UpsertVolume(
+			statefulSet.Spec.Template.Spec.Volumes,
+			core.Volume{
+				Name: msapi.MSSQLDataDirectoryName,
+				VolumeSource: core.VolumeSource{
+					EmptyDir: &ed,
+				},
+			})
+	} else {
+		// Set sts.Spec.VolumeClaimTemplates with pvcSpec. In consequence, a pvc (& thus a dynamically allocated pv) will be created
+		if len(pvcSpec.AccessModes) == 0 {
+			pvcSpec.AccessModes = []core.PersistentVolumeAccessMode{
+				core.ReadWriteOnce,
+			}
+		}
+
+		claim := core.PersistentVolumeClaim{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: msapi.MSSQLDefaultVolumeClaimTemplateName,
+			},
+			Spec: *pvcSpec,
+		}
+		if pvcSpec.StorageClassName != nil {
+			claim.Annotations = map[string]string{
+				"volume.beta.kubernetes.io/storage-class": *pvcSpec.StorageClassName,
+			}
+		}
+		statefulSet.Spec.VolumeClaimTemplates = coreutil.UpsertVolumeClaim(
+			statefulSet.Spec.VolumeClaimTemplates,
+			claim,
+		)
+	}
+	return statefulSet
 }

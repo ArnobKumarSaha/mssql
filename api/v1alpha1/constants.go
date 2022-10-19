@@ -17,11 +17,14 @@ limitations under the License.
 package v1alpha1
 
 const (
-	MSSQLContainerName        = "mssql"
-	MSSQLWorkDirectoryName    = "workdir"
-	MSSQLWorkDirectoryPath    = "/work-dir"
-	MSSQLInstallContainerName = "copy-config"
-	MSSQLDatabasePortName     = "db"
-	MSSQLDatabasePort         = 1433
-	MSSQLUser                 = "sa"
+	MSSQLContainerName                  = "mssql"
+	MSSQLWorkDirectoryName              = "workdir"
+	MSSQLWorkDirectoryPath              = "/work-dir"
+	MSSQLInstallContainerName           = "copy-config"
+	MSSQLDatabasePortName               = "db"
+	MSSQLDatabasePort                   = 1433
+	MSSQLUser                           = "sa"
+	MSSQLDataDirectoryName              = "datadir"
+	MSSQLDataDirectoryPath              = "/var/opt/mssql"
+	MSSQLDefaultVolumeClaimTemplateName = MSSQLDataDirectoryName
 )

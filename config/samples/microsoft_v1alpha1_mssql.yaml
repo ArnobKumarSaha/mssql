@@ -4,4 +4,22 @@ metadata:
   name: sample
   namespace: demo
 spec:
-  version: "0.1.2"
+  version: "mcr.microsoft.com/mssql/server:2019-latest"
+  replicas: 3
+  storageType: Durable
+  storage:
+    storageClassName: "standard"
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 2Gi
+  podTemplate:
+    spec:
+      resources:
+        requests:
+          memory: "2G"
+          cpu: "2000m"
+        limits:
+          memory: "2G"
+          cpu: "2000m"

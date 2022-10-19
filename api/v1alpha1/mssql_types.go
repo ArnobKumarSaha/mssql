@@ -55,6 +55,14 @@ type MSSQLSpec struct {
 	// Number of instances to deploy for a MSSQL database.
 	Replicas *int32 `json:"replicas,omitempty"`
 
+	// https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-editions-and-components-2019?view=sql-server-ver16#-editions
+	// +kubebuilder:default="Developer"
+	// +optional
+	Edition MSSQLEdition `json:"edition"`
+
+	// StorageType can be durable (default) or ephemeral
+	StorageType dbapi.StorageType `json:"storageType,omitempty"`
+
 	// Storage spec to specify how storage shall be used.
 	Storage *core.PersistentVolumeClaimSpec `json:"storage,omitempty"`
 
@@ -89,6 +97,16 @@ type MSSQLSpec struct {
 	// +kubebuilder:default={periodSeconds: 10, timeoutSeconds: 10, failureThreshold: 1}
 	HealthChecker kmapi.HealthCheckSpec `json:"healthChecker"`
 }
+
+// +kubebuilder:validation:Enum=Developer;Express;Standard;Enterprise
+type MSSQLEdition string
+
+const (
+	MSSQLEditionDeveloper  MSSQLEdition = "Developer"
+	MSSQLEditionExpress    MSSQLEdition = "Express"
+	MSSQLEditionStandard   MSSQLEdition = "Standard"
+	MSSQLEditionEnterprise MSSQLEdition = "Enterprise"
+)
 
 type MSSQLStatus struct {
 	// Specifies the current phase of the database

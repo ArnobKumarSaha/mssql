@@ -24,11 +24,11 @@ import (
 )
 
 func (r *MSSQLReconciler) ensureNodes() error {
-	args, err := r.getArgsForNonTopology()
+	args, err := r.getArgs()
 	if err != nil {
 		return err
 	}
-	envList := getEnvListForNonTopology()
+	envList := r.getEnvList()
 
 	podTemplate := r.db.Spec.PodTemplate
 	initContnr, initvolumes, err := r.installInitContainer(podTemplate, r.db.Spec.ConfigSecret)
@@ -61,14 +61,68 @@ func (r *MSSQLReconciler) ensureNodes() error {
 	return err
 }
 
-func (r *MSSQLReconciler) getArgsForNonTopology() ([]string, error) {
+func (r *MSSQLReconciler) getArgs() ([]string, error) {
 	var args []string
 	return args, nil
 }
 
-func getEnvListForNonTopology() []core.EnvVar {
-	return nil
+func (r *MSSQLReconciler) getEnvList() []core.EnvVar {
+	return []core.EnvVar{
+		{
+			Name: "POD_NAME",
+			ValueFrom: &core.EnvVarSource{
+				FieldRef: &core.ObjectFieldSelector{
+					APIVersion: "v1",
+					FieldPath:  "metadata.name",
+				},
+			},
+		},
+		{
+			Name: "POD_NAMESPACE",
+			ValueFrom: &core.EnvVarSource{
+				FieldRef: &core.ObjectFieldSelector{
+					APIVersion: "v1",
+					FieldPath:  "metadata.namespace",
+				},
+			},
+		},
+		{
+			Name:  "AUTH",
+			Value: "true",
+		},
+		{
+			Name: "MSSQL_SA_USERNAME",
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
+						Name: r.db.Spec.AuthSecret.Name,
+					},
+					Key: core.BasicAuthUsernameKey,
+				},
+			},
+		},
+		{
+			Name: "MSSQL_SA_PASSWORD",
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
+						Name: r.db.Spec.AuthSecret.Name,
+					},
+					Key: core.BasicAuthPasswordKey,
+				},
+			},
+		},
+		{
+			Name:  "MSSQL_PID",
+			Value: string(r.db.Spec.Edition),
+		},
+		{
+			Name:  "ACCEPT_EULA",
+			Value: "Y",
+		},
+	}
 }
+
 func getCommonVolumesAndMounts() ([]core.Volume, []core.VolumeMount) {
 	return nil, nil
 }

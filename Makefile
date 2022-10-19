@@ -140,3 +140,11 @@ clear:
 	kubectl delete secret sample-auth
 
 full: uninstall manifests generate fmt vet install run
+
+clean-combined:
+	kubectl delete pvc -n demo dxe-mssql-pri-0
+	kubectl delete pvc -n demo dxe-mssql-sec-0
+	kubectl delete pvc -n demo mssql-mssql-pri-0
+	kubectl delete pvc -n demo mssql-mssql-sec-0
+	kubectl delete pvc -n demo dxe-mssql-sec-1
+	kubectl delete pvc -n demo mssql-mssql-sec-1
